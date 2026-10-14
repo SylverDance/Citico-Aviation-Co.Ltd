@@ -1,0 +1,9 @@
+# Project source, shipped so this site can be rebuilt later.
+# Never served over HTTP — deny everything in this folder.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

@@ -1,0 +1,526 @@
+@import "tailwindcss";
+
+/* Gilroy-style geometric sans — self-hosted Montserrat (Gilroy itself is a paid
+   license; Montserrat is the closest free match: same geometric skeleton, clean
+   aviation-corporate feel). Loaded via next/font/local in layout.tsx. */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* CITICO Aviation — bright sky-blue identity */
+  /* Aviation Blue — primary */
+  --color-citico-950: #0a1628;
+  --color-citico-900: #0f2240;
+  --color-citico-800: #163560;
+  --color-citico-700: #1d4a80;
+  --color-citico-600: #2470a0;
+  --color-citico-500: #2D8CFF;
+  --color-citico-400: #5aabff;
+  --color-citico-300: #89c4ff;
+  --color-citico-200: #b8dcff;
+  --color-citico-100: #e0f0ff;
+
+  /* Blue accent — replaces red */
+  --color-flag-700: #1a5fb4;
+  --color-flag-600: #2D8CFF;
+  --color-flag-500: #5aabff;
+  --color-flag-400: #89c4ff;
+
+  /* Navy backgrounds — darker blue-gray */
+  --color-navy-950: #070e1a;
+  --color-navy-900: #0c1526;
+  --color-navy-800: #121e36;
+  --color-navy-700: #1a2a4a;
+  --color-navy-600: #223660;
+
+  /* Subtle warm gold — used sparingly */
+  --color-gold-500: #b8953f;
+  --color-gold-400: #d4aa4f;
+
+  --font-display: var(--font-gilroy), var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gilroy), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-glow-blue: 0 0 40px -8px rgb(45 140 255 / 0.45);
+  --shadow-card: 0 20px 50px -24px rgb(4 8 24 / 0.35);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-dash: dash 3.2s linear infinite;
+  --animate-pulse-soft: pulseSoft 3s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes dash {
+    to { stroke-dashoffset: -28; }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+}
+
+:root {
+  --bg: #f6f7fb;
+  --fg: #0a1226;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #030814;
+  --fg: #e8ecf5;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Accessible focus ring (site-wide, keyboard only) ── */
+:focus-visible {
+  outline: 2px solid #0078ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible,
+footer :focus-visible,
+.bg-\[\#004ea8\] :focus-visible {
+  outline-color: #7cc4ff;
+}
+
+/* ── Respect reduced motion globally ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-gilroy), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-citico-500);
+  color: #fff;
+}
+
+/* ---------- custom utilities ---------- */
+@utility glass {
+  background: color-mix(in srgb, white 80%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+.dark .glass {
+  background: color-mix(in srgb, #000014 70%, transparent);
+}
+
+@utility text-gradient {
+  background: linear-gradient(100deg, var(--color-citico-500), var(--color-citico-300) 55%, var(--color-citico-400));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility grid-lines {
+  background-image:
+    linear-gradient(rgb(10 18 38 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(10 18 38 / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+.dark .grid-lines {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+}
+
+/* Hero mobile scrim — text spans full width on small screens; keep aircraft visible */
+.hero-mobile-scrim {
+  background: linear-gradient(180deg, rgba(6,16,33,0.70) 0%, rgba(6,16,33,0.42) 45%, rgba(6,16,33,0.18) 100%);
+}
+
+@utility section-pad {
+  padding-inline: 1.25rem;
+  @media (min-width: 768px) { padding-inline: 2.5rem; }
+  @media (min-width: 1280px) { padding-inline: 4rem; }
+}
+
+/* film-grain dust overlay for cinematic sections */
+@utility dust-overlay {
+  position: relative;
+}
+.dust-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+}
+
+/* thin scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-citico-700) 55%, transparent);
+  border-radius: 8px;
+}
+
+/* focus visibility for a11y */
+:focus-visible {
+  outline: 2px solid var(--color-citico-400);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ────────────────────────────────────────────────
+   RTL (Arabic) — same design system, mirrored rules
+   ──────────────────────────────────────────────── */
+
+/* Arabic script renders in Cairo (self-hosted, Arabic + Latin subsets);
+   Montserrat stays as the fallback for Latin brand marks. */
+[dir="rtl"] {
+  --font-display: var(--font-cairo-ar), var(--font-cairo-lat), var(--font-gilroy), ui-sans-serif, system-ui,
+    sans-serif;
+  --font-sans: var(--font-cairo-ar), var(--font-cairo-lat), var(--font-gilroy), ui-sans-serif, system-ui, sans-serif;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-cairo-ar), var(--font-cairo-lat), var(--font-gilroy), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Arabic script uses its own letterforms; Tailwind’s Latin letter-spacing, uppercase and
+   italic transforms are meaningless for Arabic and visually wrong, so zero them out in RTL.
+   Tailwind v4 emits several utility shapes, so we cover both attribute selectors and explicit
+   custom utility classes that the project uses directly. */
+[dir="rtl"] [class*="tracking-"],
+[dir="rtl"] .tracking-tight,
+[dir="rtl"] .tracking-wide,
+[dir="rtl"] .tracking-wider,
+[dir="rtl"] .tracking-widest,
+[dir="rtl"] [class*="uppercase"],
+[dir="rtl"] .uppercase,
+[dir="rtl"] [class*="lowercase"],
+[dir="rtl"] .lowercase,
+[dir="rtl"] [class*="capitalize"],
+[dir="rtl"] .capitalize,
+[dir="rtl"] [class*="italic"],
+[dir="rtl"] .italic {
+  letter-spacing: 0;
+  text-transform: none;
+  font-style: normal;
+}
+
+/* Cairo is optically heavier/rounder than the English Montserrat face, so map Tailwind’s
+   nominal font-weight utilities down one notch for Arabic script so headings and UI text
+   preserve the same visual weight the English version uses. */
+[dir="rtl"] .font-normal { font-weight: 400; }
+[dir="rtl"] .font-medium { font-weight: 500; }
+[dir="rtl"] .font-semibold { font-weight: 600; }
+[dir="rtl"] .font-bold { font-weight: 600; }
+[dir="rtl"] .font-extrabold { font-weight: 700; }
+[dir="rtl"] .font-black { font-weight: 800; }
+
+/* Tailwind’s rtl:scale-x-100 is a directional-icon mirror (scaleX(-1)). For Arabic we do not
+   want directional arrows/icons flipped to a mirrored glyph — the brand arrows and chevrons
+   should keep their intended shape. Force the compiled rtl scale utility back to identity. */
+[dir="rtl"] .rtl\:-scale-x-100,
+[dir="rtl"] [class*="rtl:-scale-x-100"] {
+  --tw-scale-x: 1 !important;
+  scale: var(--tw-scale-x) var(--tw-scale-y) !important;
+}
+
+/* ── RTL layout mirroring (Arabic) ───────────────────────────────────────────────────
+   Mirror *directional* layout primitives so the Arabic page follows RTL reading order while
+   preserving every design proportion from the English version. Decorative logos, photographs,
+   brand graphics and non-directional icons are intentionally NOT mirrored here — those stay
+   unchanged so the brand stays visually identical across locales. */
+
+/* Text and inline direction ----------------------------------------------------- */
+[dir="rtl"] {
+  text-align: start;
+}
+[dir="rtl"] .text-left { text-align: right; }
+[dir="rtl"] .text-right { text-align: left; }
+[dir="rtl"] .text-center { text-align: center; }
+[dir="rtl"] .text-justify { text-align: justify; }
+
+/* Lists -------------------------------------------------------------------------- */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-inline-start: 1.5rem;
+  padding-inline-end: 0;
+}
+[dir="rtl"] li {
+  text-align: start;
+}
+
+/* Flex / grid start↔end spacing --------------------------------------------- */
+[dir="rtl"] .gap-x-0  { --tw-gap-x: 0; gap-inline-start: 0; gap-inline-end: 0; }
+[dir="rtl"] .gap-x-0\.5 { --tw-gap-x: 0.125rem; gap-inline-start: 0.125rem; gap-inline-end: 0.125rem; }
+[dir="rtl"] .gap-x-1  { --tw-gap-x: 0.25rem; gap-inline-start: 0.25rem; gap-inline-end: 0.25rem; }
+[dir="rtl"] .gap-x-1\.5 { --tw-gap-x: 0.375rem; gap-inline-start: 0.375rem; gap-inline-end: 0.375rem; }
+[dir="rtl"] .gap-x-2  { --tw-gap-x: 0.5rem; gap-inline-start: 0.5rem; gap-inline-end: 0.5rem; }
+[dir="rtl"] .gap-x-2\.5 { --tw-gap-x: 0.625rem; gap-inline-start: 0.625rem; gap-inline-end: 0.625rem; }
+[dir="rtl"] .gap-x-3  { --tw-gap-x: 0.75rem; gap-inline-start: 0.75rem; gap-inline-end: 0.75rem; }
+[dir="rtl"] .gap-x-3\.5 { --tw-gap-x: 0.875rem; gap-inline-start: 0.875rem; gap-inline-end: 0.875rem; }
+[dir="rtl"] .gap-x-4  { --tw-gap-x: 1rem; gap-inline-start: 1rem; gap-inline-end: 1rem; }
+[dir="rtl"] .gap-x-5  { --tw-gap-x: 1.25rem; gap-inline-start: 1.25rem; gap-inline-end: 1.25rem; }
+[dir="rtl"] .gap-x-6  { --tw-gap-x: 1.5rem; gap-inline-start: 1.5rem; gap-inline-end: 1.5rem; }
+[dir="rtl"] .gap-x-7  { --tw-gap-x: 1.75rem; gap-inline-start: 1.75rem; gap-inline-end: 1.75rem; }
+[dir="rtl"] .gap-x-8  { --tw-gap-x: 2rem; gap-inline-start: 2rem; gap-inline-end: 2rem; }
+[dir="rtl"] .gap-x-9  { --tw-gap-x: 2.25rem; gap-inline-start: 2.25rem; gap-inline-end: 2.25rem; }
+[dir="rtl"] .gap-x-10 { --tw-gap-x: 2.5rem; gap-inline-start: 2.5rem; gap-inline-end: 2.5rem; }
+[dir="rtl"] .gap-x-11 { --tw-gap-x: 2.75rem; gap-inline-start: 2.75rem; gap-inline-end: 2.75rem; }
+[dir="rtl"] .gap-x-12 { --tw-gap-x: 3rem; gap-inline-start: 3rem; gap-inline-end: 3rem; }
+[dir="rtl"] .gap-x-14 { --tw-gap-x: 3.5rem; gap-inline-start: 3.5rem; gap-inline-end: 3.5rem; }
+[dir="rtl"] .gap-x-16 { --tw-gap-x: 4rem; gap-inline-start: 4rem; gap-inline-end: 4rem; }
+[dir="rtl"] .gap-x-20 { --tw-gap-x: 5rem; gap-inline-start: 5rem; gap-inline-end: 5rem; }
+[dir="rtl"] .gap-x-24 { --tw-gap-x: 6rem; gap-inline-start: 6rem; gap-inline-end: 6rem; }
+[dir="rtl"] .gap-x-28 { --tw-gap-x: 7rem; gap-inline-start: 7rem; gap-inline-end: 7rem; }
+[dir="rtl"] .gap-x-32 { --tw-gap-x: 8rem; gap-inline-start: 8rem; gap-inline-end: 8rem; }
+[dir="rtl"] .gap-x-36 { --tw-gap-x: 9rem; gap-inline-start: 9rem; gap-inline-end: 9rem; }
+[dir="rtl"] .gap-x-40 { --tw-gap-x: 10rem; gap-inline-start: 10rem; gap-inline-end: 10rem; }
+[dir="rtl"] .gap-x-44 { --tw-gap-x: 11rem; gap-inline-start: 11rem; gap-inline-end: 11rem; }
+[dir="rtl"] .gap-x-48 { --tw-gap-x: 12rem; gap-inline-start: 12rem; gap-inline-end: 12rem; }
+[dir="rtl"] .gap-x-52 { --tw-gap-x: 13rem; gap-inline-start: 13rem; gap-inline-end: 13rem; }
+[dir="rtl"] .gap-x-56 { --tw-gap-x: 14rem; gap-inline-start: 14rem; gap-inline-end: 14rem; }
+[dir="rtl"] .gap-x-60 { --tw-gap-x: 15rem; gap-inline-start: 15rem; gap-inline-end: 15rem; }
+[dir="rtl"] .gap-x-64 { --tw-gap-x: 16rem; gap-inline-start: 16rem; gap-inline-end: 16rem; }
+[dir="rtl"] .gap-x-72 { --tw-gap-x: 18rem; gap-inline-start: 18rem; gap-inline-end: 18rem; }
+[dir="rtl"] .gap-x-80 { --tw-gap-x: 20rem; gap-inline-start: 20rem; gap-inline-end: 20rem; }
+[dir="rtl"] .gap-x-96 { --tw-gap-x: 24rem; gap-inline-start: 24rem; gap-inline-end: 24rem; }
+[dir="rtl"] .gap-x-px { --tw-gap-x: 1px; gap-inline-start: 1px; gap-inline-end: 1px; }
+
+/* Negative horizontal margins (used for bleed / full-bleed sections) --------------- */
+[dir="rtl"] .ml-0 { margin-inline-start: 0; }
+[dir="rtl"] .ml-0\.5 { margin-inline-start: 0.125rem; }
+[dir="rtl"] .ml-1 { margin-inline-start: 0.25rem; }
+[dir="rtl"] .ml-1\.5 { margin-inline-start: 0.375rem; }
+[dir="rtl"] .ml-2 { margin-inline-start: 0.5rem; }
+[dir="rtl"] .ml-2\.5 { margin-inline-start: 0.625rem; }
+[dir="rtl"] .ml-3 { margin-inline-start: 0.75rem; }
+[dir="rtl"] .ml-3\.5 { margin-inline-start: 0.875rem; }
+[dir="rtl"] .ml-4 { margin-inline-start: 1rem; }
+[dir="rtl"] .ml-5 { margin-inline-start: 1.25rem; }
+[dir="rtl"] .ml-6 { margin-inline-start: 1.5rem; }
+[dir="rtl"] .ml-7 { margin-inline-start: 1.75rem; }
+[dir="rtl"] .ml-8 { margin-inline-start: 2rem; }
+[dir="rtl"] .ml-9 { margin-inline-start: 2.25rem; }
+[dir="rtl"] .ml-10 { margin-inline-start: 2.5rem; }
+[dir="rtl"] .ml-11 { margin-inline-start: 2.75rem; }
+[dir="rtl"] .ml-12 { margin-inline-start: 3rem; }
+[dir="rtl"] .ml-14 { margin-inline-start: 3.5rem; }
+[dir="rtl"] .ml-16 { margin-inline-start: 4rem; }
+[dir="rtl"] .ml-20 { margin-inline-start: 5rem; }
+[dir="rtl"] .ml-24 { margin-inline-start: 6rem; }
+[dir="rtl"] .ml-28 { margin-inline-start: 7rem; }
+[dir="rtl"] .ml-32 { margin-inline-start: 8rem; }
+[dir="rtl"] .ml-36 { margin-inline-start: 9rem; }
+[dir="rtl"] .ml-40 { margin-inline-start: 10rem; }
+[dir="rtl"] .ml-44 { margin-inline-start: 11rem; }
+[dir="rtl"] .ml-48 { margin-inline-start: 12rem; }
+[dir="rtl"] .ml-52 { margin-inline-start: 13rem; }
+[dir="rtl"] .ml-56 { margin-inline-start: 14rem; }
+[dir="rtl"] .ml-60 { margin-inline-start: 15rem; }
+[dir="rtl"] .ml-64 { margin-inline-start: 16rem; }
+[dir="rtl"] .ml-72 { margin-inline-start: 18rem; }
+[dir="rtl"] .ml-80 { margin-inline-start: 20rem; }
+[dir="rtl"] .ml-96 { margin-inline-start: 24rem; }
+[dir="rtl"] .ml-px { margin-inline-start: 1px; }
+
+/* Negative start-margin bleed (e.g. -ml-16 full-bleed graphics) — keep graphic intact */
+[dir="rtl"] .ml-\-1 { margin-inline-start: -0.25rem; }
+[dir="rtl"] .ml-\-1\.5 { margin-inline-start: -0.375rem; }
+[dir="rtl"] .ml-\-2 { margin-inline-start: -0.5rem; }
+[dir="rtl"] .ml-\-2\.5 { margin-inline-start: -0.625rem; }
+[dir="rtl"] .ml-\-3 { margin-inline-start: -0.75rem; }
+[dir="rtl"] .ml-\-3\.5 { margin-inline-start: -0.875rem; }
+[dir="rtl"] .ml-\-4 { margin-inline-start: -1rem; }
+[dir="rtl"] .ml-\-5 { margin-inline-start: -1.25rem; }
+[dir="rtl"] .ml-\-6 { margin-inline-start: -1.5rem; }
+[dir="rtl"] .ml-\-7 { margin-inline-start: -1.75rem; }
+[dir="rtl"] .ml-\-8 { margin-inline-start: -2rem; }
+[dir="rtl"] .ml-\-9 { margin-inline-start: -2.25rem; }
+[dir="rtl"] .ml-\-10 { margin-inline-start: -2.5rem; }
+[dir="rtl"] .ml-\-11 { margin-inline-start: -2.75rem; }
+[dir="rtl"] .ml-\-12 { margin-inline-start: -3rem; }
+[dir="rtl"] .ml-\-14 { margin-inline-start: -3.5rem; }
+[dir="rtl"] .ml-\-16 { margin-inline-start: -4rem; }
+[dir="rtl"] .ml-\-20 { margin-inline-start: -5rem; }
+[dir="rtl"] .ml-\-24 { margin-inline-start: -6rem; }
+[dir="rtl"] .ml-\-28 { margin-inline-start: -7rem; }
+[dir="rtl"] .ml-\-32 { margin-inline-start: -8rem; }
+[dir="rtl"] .ml-\-36 { margin-inline-start: -9rem; }
+[dir="rtl"] .ml-\-40 { margin-inline-start: -10rem; }
+[dir="rtl"] .ml-\-44 { margin-inline-start: -11rem; }
+[dir="rtl"] .ml-\-48 { margin-inline-start: -12rem; }
+[dir="rtl"] .ml-\-52 { margin-inline-start: -13rem; }
+[dir="rtl"] .ml-\-56 { margin-inline-start: -14rem; }
+[dir="rtl"] .ml-\-60 { margin-inline-start: -15rem; }
+[dir="rtl"] .ml-\-64 { margin-inline-start: -16rem; }
+[dir="rtl"] .ml-\-72 { margin-inline-start: -18rem; }
+[dir="rtl"] .ml-\-80 { margin-inline-start: -20rem; }
+[dir="rtl"] .ml-\-96 { margin-inline-start: -24rem; }
+[dir="rtl"] .ml-\-px { margin-inline-start: -1px; }
+
+/* Positive start margin used for spacing from the leading edge --------------------- */
+[dir="rtl"] .ms-0 { margin-inline-start: 0; }
+[dir="rtl"] .ms-0\.5 { margin-inline-start: 0.125rem; }
+[dir="rtl"] .ms-1 { margin-inline-start: 0.25rem; }
+[dir="rtl"] .ms-1\.5 { margin-inline-start: 0.375rem; }
+[dir="rtl"] .ms-2 { margin-inline-start: 0.5rem; }
+[dir="rtl"] .ms-2\.5 { margin-inline-start: 0.625rem; }
+[dir="rtl"] .ms-3 { margin-inline-start: 0.75rem; }
+[dir="rtl"] .ms-3\.5 { margin-inline-start: 0.875rem; }
+[dir="rtl"] .ms-4 { margin-inline-start: 1rem; }
+[dir="rtl"] .ms-5 { margin-inline-start: 1.25rem; }
+[dir="rtl"] .ms-6 { margin-inline-start: 1.5rem; }
+[dir="rtl"] .ms-7 { margin-inline-start: 1.75rem; }
+[dir="rtl"] .ms-8 { margin-inline-start: 2rem; }
+[dir="rtl"] .ms-9 { margin-inline-start: 2.25rem; }
+[dir="rtl"] .ms-10 { margin-inline-start: 2.5rem; }
+[dir="rtl"] .ms-11 { margin-inline-start: 2.75rem; }
+[dir="rtl"] .ms-12 { margin-inline-start: 3rem; }
+[dir="rtl"] .ms-14 { margin-inline-start: 3.5rem; }
+[dir="rtl"] .ms-16 { margin-inline-start: 4rem; }
+[dir="rtl"] .ms-20 { margin-inline-start: 5rem; }
+[dir="rtl"] .ms-24 { margin-inline-start: 6rem; }
+[dir="rtl"] .ms-28 { margin-inline-start: 7rem; }
+[dir="rtl"] .ms-32 { margin-inline-start: 8rem; }
+[dir="rtl"] .ms-36 { margin-inline-start: 9rem; }
+[dir="rtl"] .ms-40 { margin-inline-start: 10rem; }
+[dir="rtl"] .ms-44 { margin-inline-start: 11rem; }
+[dir="rtl"] .ms-48 { margin-inline-start: 12rem; }
+[dir="rtl"] .ms-52 { margin-inline-start: 13rem; }
+[dir="rtl"] .ms-56 { margin-inline-start: 14rem; }
+[dir="rtl"] .ms-60 { margin-inline-start: 15rem; }
+[dir="rtl"] .ms-64 { margin-inline-start: 16rem; }
+[dir="rtl"] .ms-72 { margin-inline-start: 18rem; }
+[dir="rtl"] .ms-80 { margin-inline-start: 20rem; }
+[dir="rtl"] .ms-96 { margin-inline-start: 24rem; }
+[dir="rtl"] .ms-px { margin-inline-start: 1px; }
+
+/* End margin (trailing edge) --------------------------------------------------- */
+[dir="rtl"] .me-0 { margin-inline-end: 0; }
+[dir="rtl"] .me-0\.5 { margin-inline-end: 0.125rem; }
+[dir="rtl"] .me-1 { margin-inline-end: 0.25rem; }
+[dir="rtl"] .me-1\.5 { margin-inline-end: 0.375rem; }
+[dir="rtl"] .me-2 { margin-inline-end: 0.5rem; }
+[dir="rtl"] .me-2\.5 { margin-inline-end: 0.625rem; }
+[dir="rtl"] .me-3 { margin-inline-end: 0.75rem; }
+[dir="rtl"] .me-3\.5 { margin-inline-end: 0.875rem; }
+[dir="rtl"] .me-4 { margin-inline-end: 1rem; }
+[dir="rtl"] .me-5 { margin-inline-end: 1.25rem; }
+[dir="rtl"] .me-6 { margin-inline-end: 1.5rem; }
+[dir="rtl"] .me-7 { margin-inline-end: 1.75rem; }
+[dir="rtl"] .me-8 { margin-inline-end: 2rem; }
+[dir="rtl"] .me-9 { margin-inline-end: 2.25rem; }
+[dir="rtl"] .me-10 { margin-inline-end: 2.5rem; }
+[dir="rtl"] .me-11 { margin-inline-end: 2.75rem; }
+[dir="rtl"] .me-12 { margin-inline-end: 3rem; }
+[dir="rtl"] .me-14 { margin-inline-end: 3.5rem; }
+[dir="rtl"] .me-16 { margin-inline-end: 4rem; }
+[dir="rtl"] .me-20 { margin-inline-end: 5rem; }
+[dir="rtl"] .me-24 { margin-inline-end: 6rem; }
+[dir="rtl"] .me-28 { margin-inline-end: 7rem; }
+[dir="rtl"] .me-32 { margin-inline-end: 8rem; }
+[dir="rtl"] .me-36 { margin-inline-end: 9rem; }
+[dir="rtl"] .me-40 { margin-inline-end: 10rem; }
+[dir="rtl"] .me-44 { margin-inline-end: 11rem; }
+[dir="rtl"] .me-48 { margin-inline-end: 12rem; }
+[dir="rtl"] .me-52 { margin-inline-end: 13rem; }
+[dir="rtl"] .me-56 { margin-inline-end: 14rem; }
+[dir="rtl"] .me-60 { margin-inline-end: 15rem; }
+[dir="rtl"] .me-64 { margin-inline-end: 16rem; }
+[dir="rtl"] .me-72 { margin-inline-end: 18rem; }
+[dir="rtl"] .me-80 { margin-inline-end: 20rem; }
+[dir="rtl"] .me-96 { margin-inline-end: 24rem; }
+[dir="rtl"] .me-px { margin-inline-end: 1px; }
+
+/* Table cells: keep cell padding mirrored, header/footer alignment per RTL ---------- */
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: start;
+}
+[dir="rtl"] .text-left { text-align: right; }
+[dir="rtl"] .text-right { text-align: left; }
+[dir="rtl"] .text-center { text-align: center; }
+
+/* Form labels / inputs: label should sit on the leading edge in RTL ---------------- */
+[dir="rtl"] label,
+[dir="rtl"] .label,
+[dir="rtl"] [role="label"] {
+  text-align: start;
+}
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: start;
+}
+
+/* Breadcrumb separators and inline pagination: keep separators on the logical side ---- */
+[dir="rtl"] .breadcrumb-separator,
+[dir="rtl"] [aria-hidden="true"][class*="sep" i] {
+  direction: ltr;
+}
+
+/* Directional helper: anything explicitly marked non-mirror stays LTR for graphics ----- */
+[dir="rtl"] .no-rtl-mirror,
+[dir="rtl"] img,
+[dir="rtl"] svg:is(:not([class*="IconArrow"]):not([class*="arrow"]):not([class*="chevron"]):not([class*="caret"]):not([class*="toggle"]):not([class*="menu"]):not([class*="dropdown"])) {
+  direction: ltr;
+}
+
+/* Directional scrims — mirrored so the headline always sits over the darker side */
+.hero-text-scrim {
+  background: linear-gradient(
+    100deg,
+    rgba(5, 22, 48, 0.72) 0%,
+    rgba(6, 32, 68, 0.5) 36%,
+    rgba(8, 45, 95, 0.14) 60%,
+    rgba(10, 60, 130, 0) 78%
+  );
+}
+[dir="rtl"] .hero-text-scrim {
+  background: linear-gradient(
+    260deg,
+    rgba(5, 22, 48, 0.72) 0%,
+    rgba(6, 32, 68, 0.5) 36%,
+    rgba(8, 45, 95, 0.14) 60%,
+    rgba(10, 60, 130, 0) 78%
+  );
+}
+
+/* Marquee reads the same in both directions, but the fade masks must swap sides */
+[dir="rtl"] .animate-marquee {
+  animation-name: marquee-rtl;
+}
+@keyframes marquee-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}

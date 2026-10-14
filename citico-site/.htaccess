@@ -1,0 +1,142 @@
+# ════════════════════════════════════════════════════════════════════════════
+#  CITICO Aviation — Hostinger (LiteSpeed / Apache) configuration
+#
+#  Upload the CONTENTS of this archive straight into `public_html`, so that
+#  `public_html/index.html` is the English home page and `public_html/ar/` is
+#  the Arabic one. This file must sit at the root of `public_html` alongside
+#  `index.html` — not inside a subfolder.
+#
+#  The site is a Next.js static export built with trailing slashes, so every
+#  route is a real directory holding an `index.html`, and LiteSpeed resolves
+#  `/about/` → `/about/index.html` by itself. Routing therefore needs no
+#  rewrite rules. Everything below is production hardening around that.
+#
+#  Nothing here is required for the site to work, and every block is wrapped in
+#  <IfModule> so a host missing a module degrades gracefully instead of
+#  returning HTTP 500.
+# ════════════════════════════════════════════════════════════════════════════
+
+# ── 1. Directory behaviour ──────────────────────────────────────────────────
+# Never expose a folder listing, and resolve any directory to its index.html.
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
+
+DirectoryIndex index.html
+
+# Serve the branded 404 page that `next build` exported (it lives at the root
+# of this archive). Without this line the host shows its own generic error page.
+ErrorDocument 404 /404.html
+
+# ── 2. MIME types ───────────────────────────────────────────────────────────
+# LiteSpeed already knows these; declaring them keeps the export correct when
+# the account is migrated or served by a plain Apache box.
+<IfModule mod_mime.c>
+  AddType text/html .html
+  AddType text/css .css
+  AddType application/javascript .js .mjs
+  AddType application/json .json
+  AddType image/webp .webp
+  AddType image/avif .avif
+  AddType image/svg+xml .svg
+  AddType font/woff2 .woff2
+  AddType font/woff .woff
+  AddType application/xml .xml
+  AddCharset UTF-8 .html .css .js .json .xml .txt .svg
+</IfModule>
+
+# ── 3. Compression ──────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE application/xml image/svg+xml
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json
+  AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+</IfModule>
+
+# ── 4. Caching ──────────────────────────────────────────────────────────────
+# Next.js fingerprints everything under /_next/static, so those files can be
+# cached indefinitely. Images and fonts change rarely. HTML must revalidate so
+# that uploading a new build is visible immediately.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|ttf|otf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.(webp|avif|png|jpe?g|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=15552000"
+  </FilesMatch>
+
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # ── Security headers ──
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "geolocation=(), camera=(), microphone=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+</IfModule>
+
+# ── 5. Protect this file, and the non-site files that ship alongside it ─────
+# The archive also carries README-HOSTINGER.md, DEPLOYMENT-REPORT.md and the
+# project source under `source/`. None of that is part of the published site,
+# so deny it here as well as with `source/.htaccess`. Deleting those three
+# things after extraction is harmless and makes this section moot.
+<IfModule mod_authz_core.c>
+  <Files ".htaccess">
+    Require all denied
+  </Files>
+
+  <FilesMatch "(?i)\.(md|zip|tar\.gz|tsbuildinfo|log|bak)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # (0) The project source tree, in case the whole archive was extracted into
+  #     public_html instead of just the site files.
+  RewriteRule ^source(/|$) - [F,L]
+</IfModule>
+
+# ── 6. Optional: HTTPS + canonical host + index.html cleanup ────────────────
+# Left switched off on purpose so this archive works the instant it is uploaded,
+# even before Hostinger has issued the SSL certificate. Forcing HTTPS early
+# would take the site down.
+#
+# Turn each block on only when it applies to your account. Do not enable both
+# host-normalisation blocks — pick the one that matches your domain.
+#
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#
+#   # (a) http → https. Enable once Hostinger shows SSL as ACTIVE for the domain.
+#   RewriteCond %{HTTPS} off
+#   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+#
+#   # (b) Prefer www — matches the canonical tags Next.js writes
+#   #     (https://www.citicoaviation.com/about/).
+#   RewriteCond %{HTTP_HOST} !^www\. [NC]
+#   RewriteRule ^(.*)$ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+#
+#   # (c) Prefer the bare domain — use INSTEAD of (b) if that is your setup.
+#   # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+#   # RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
+#
+#   # (d) Collapse /about/index.html onto /about/ so only one URL is indexable.
+#   #     The THE_REQUEST guard is what keeps this from looping.
+#   RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+#   RewriteRule ^(.*?)index\.html$ /$1 [R=301,L]
+# </IfModule>
