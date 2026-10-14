@@ -1,8 +1,5 @@
-# Netlify configuration for Next.js (App Router / Static Export)
+# Netlify configuration for Next.js Static Export
 [build]
   base = "citico-site/source"
-  publish = "citico-site/source/out"
+  publish = "out"
   command = "npm run build"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
